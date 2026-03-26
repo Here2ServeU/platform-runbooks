@@ -1,62 +1,54 @@
-# Red Hat Partner Training Access Runbook (Generic)
+# Red Hat Training Access Runbook
 
 ## Purpose
-This runbook provides step-by-step instructions for employees to request access to the Red Hat Partner Training Portal in order to complete OpenShift and Red Hat courses.
 
----
+Use this runbook to request access to the Red Hat Partner Training Portal and associated OpenShift courses through the approved partner support process.
 
-## When to Use This
-- Enrolled in a Red Hat course via your internal learning platform (e.g., DO280)
-- Unable to access training content
-- Prompted to use Partner Connect
-- Need to request access via Partner Acceleration Desk
+## Scope
 
----
+This runbook is intended for engineers who:
 
-## Objective
-Gain access to:
-- Red Hat Partner Training Portal
-- OpenShift training (DO180, DO280)
-- Labs and certification content
-
----
+- are enrolled in Red Hat or OpenShift training through an internal learning portal
+- cannot access course content directly
+- need partner-linked training access rather than a standalone personal account
 
 ## Prerequisites
-- You are an employee of **Your Company**
-- You have access to your company learning platform
-- You have identified the course (e.g., DO280)
-- You reviewed the Partner Connect Quick Start Guide
-- Do NOT create a standalone Red Hat account
 
----
+- active company email address
+- internal enrollment or manager approval for the course
+- course ID or course title, for example `DO180` or `DO280`
+- access to the Partner Acceleration Desk form
 
-## Step-by-Step
+## Standard Request Path
 
-### 1) Open Partner Acceleration Desk
+Open:
+
+```text
 https://connect.redhat.com/support/partner-acceleration-desk
-
----
-
-### 2) Fill the Request Form
-
-**Sub Category**
 ```
+
+Recommended form values:
+
+### Sub Category
+
+```text
 Skills training
 ```
 
-**Request Summary**
-```
+### Request Summary
+
+```text
 Access to Red Hat Partner Training Portal for OpenShift Training
 ```
 
----
+## Sanitized Request Templates
 
-### 3) Description (Standard Template)
+### Standard Template
 
-```
+```text
 Hello Team,
 
-I am an employee of Your Company requesting access to the Red Hat Partner Training Portal in order to complete OpenShift training courses.
+I am an employee of <company-name> requesting access to the Red Hat Partner Training Portal in order to complete OpenShift training courses.
 
 Specifically, I am working on:
 - Red Hat OpenShift Administration II: Configuring a Production Cluster (DO280)
@@ -70,100 +62,96 @@ Could you please grant me access so I can proceed with my training?
 Please let me know if any additional information is required.
 
 Thank you,
-[Your Name]
+<your-name>
 ```
 
----
+### Engineer-Focused Template
 
-## Advanced (Recommended for Engineers)
-
-```
+```text
 Hello Team,
 
-I am currently working in a DevOps / OpenShift environment and require access to the Red Hat Partner Training Portal to continue my hands-on training.
+I am currently working in an OpenShift platform engineering role and require access to the Red Hat Partner Training Portal to continue hands-on training.
 
 I am enrolled in:
 - Red Hat OpenShift Administration II (DO280)
 
-This training is critical for my role, as I am actively working with OpenShift cluster deployments, including agent-based installations and production configuration.
+This training supports ongoing work related to cluster deployment, GitOps operations, and production platform configuration.
 
-I attempted access through my company learning platform but understand that Red Hat Partner Connect access is required.
+I attempted access through my company learning platform but understand that partner-linked access is required.
 
-Please grant access to the partner account so I can proceed with my training.
+Please grant access to the appropriate partner account so I can proceed.
 
-Thank you for your support.
-
-Best regards,
-[Your Name]
+Thank you,
+<your-name>
 ```
 
----
+## Recommended Execution Steps
 
-## Timeline
-| Step | Time |
-|------|------|
-| Submit request | Immediate |
-| Review | Same day–2 days |
-| Access granted | Email |
+1. Confirm the exact course code and title.
+2. Confirm your company email address is the one tied to partner access.
+3. Submit the Partner Acceleration Desk request.
+4. Save the ticket number in your internal tracking system.
+5. Wait for approval or follow up if the SLA is exceeded.
 
----
+## Expected Timeline
 
-## After Approval
-- Email from Red Hat
-- Your account linked to partner organization
-- Access to:
-  - Training Portal
-  - OpenShift courses
-  - Hands-on labs
-  - Certifications
+| Step | Typical duration |
+|---|---|
+| Submit request | same day |
+| Initial review | same day to 2 business days |
+| Access confirmation | email notification |
 
----
+## Validation Checklist
+
+After approval, validate the following:
+
+- your partner-linked account can sign in
+- the assigned courses appear in the training portal
+- labs and learning paths open without access errors
+- your account is associated with the correct organization
+
+## Best Practices
+
+- use your company email only
+- do not create duplicate Red Hat accounts for the same corporate identity
+- include the exact course code in the request
+- keep the request short, factual, and role-specific
+- capture the support case number for follow-up
 
 ## Troubleshooting
 
-### Cannot access training
-- Submit Partner Acceleration Desk request
+### Cannot Access Training Content
 
----
+- confirm the request was submitted through the Partner Acceleration Desk, not a public support path
+- verify the course is tied to your company entitlement or training plan
+- confirm you are signing in with the same email used in the request
 
-### Created personal Red Hat account
-- Wait for invitation — do NOT create another account
+### Already Created A Personal Red Hat Account
 
----
+- do not create additional accounts
+- tell the support team which email address should be linked to the partner organization
+- wait for support guidance before retrying registration
 
-### No response after 2 days
-```
-Following up on my request for Red Hat Partner Training access. This is required for ongoing OpenShift training.
-```
+### No Response After Two Business Days
 
----
+Use this follow-up note:
 
-## Best Practices
-- Use your company email
-- Do not create duplicate accounts
-- Mention exact course name (DO280, DO180)
-- Keep request clear and professional
-
----
-
-## Recommended Repo Structure
-```
-team-repo/
-├── docs/
-│   └── redhat-training-access-runbook.md
+```text
+Following up on my request for Red Hat Partner Training access. This access is required for ongoing OpenShift training and platform engineering work. Please let me know if additional details are needed.
 ```
 
----
+### Access Granted But Courses Are Missing
 
-## Outcome
-After completing this process, you will have:
-- Access to Red Hat Partner Training
-- OpenShift labs and courses
-- Certification preparation resources
+- verify the entitlement or training assignment in the internal learning platform
+- confirm the correct partner organization was linked
+- ask support to verify course visibility for your user profile
 
----
+### Escalation Data To Capture
 
-## Next Steps
-- Start with DO180 (Containers & Kubernetes)
-- Continue with DO280 (OpenShift Administration)
-- Practice real cluster deployments
+Include these details when escalating internally or to support:
+
+- support ticket number
+- company email address used
+- exact course code
+- date of submission
+- screenshot of the access error with sensitive data removed

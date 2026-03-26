@@ -1,299 +1,162 @@
-# Ansible Automation Platform (AAP)
-## Beginner Guide to Creating an OpenShift Cluster with Automation Templates
+# Ansible Automation Platform Runbook
 
-**Author:** Emmanuel Naweji  
-**Audience:** Complete beginners  
-**Use case:** Documenting how to launch an OpenShift cluster installation workflow from Ansible Automation Platform and store the generated configuration in GitHub.
+## Purpose
 
----
+Use this runbook to launch an OpenShift cluster installation workflow from Ansible Automation Platform (AAP) using sanitized inputs and operational best practices.
 
-## 1. What is Ansible Automation Platform?
+## Scope
 
-Ansible Automation Platform (AAP) is a web-based platform used to automate IT work.
+This runbook covers:
 
-With AAP, teams can:
+- preparing required inputs before launch
+- submitting an OpenShift cluster installation template in AAP
+- reviewing generated inventory and configuration artifacts
+- validating the workflow output before handoff or promotion
 
-- deploy infrastructure
-- configure servers
-- run automation playbooks
-- manage cluster installation workflows
-- standardize repeatable operations
+It does not replace environment-specific change approval, DNS reservation, IPAM, or platform architecture review.
 
-For this guide, you will use AAP to launch an **OpenShift cluster installation template**.
+## Prerequisites
 
----
+- access to the AAP web console
+- access to the approved automation template
+- approved cluster name, base domain, VLAN, gateway, and VIP assignments
+- approved credentials stored in AAP credential objects
+- access to the destination Git repository if the workflow publishes artifacts
 
-## 2. High-Level Workflow
+## Sanitized Example Inputs
 
-The process is simple:
+Use placeholders while documenting or dry-running the process.
 
-1. Open the AAP web portal
-2. Log in
-3. Go to **Automation Execution**
-4. Open **Templates**
-5. Launch the OpenShift cluster installation template
-6. Fill in credentials and cluster details
-7. Submit the job
-8. Let AAP generate the configuration and GitHub repo content
+| Field | Sanitized example |
+|---|---|
+| Cluster name | `ocp-lab-cluster-01` |
+| Base domain | `lab.example.com` |
+| API VIP | `10.42.18.10` |
+| Ingress VIP | `10.42.18.11` |
+| Default gateway | `10.42.18.1` |
+| Machine network CIDR | `10.42.18.0/24` |
+| VLAN ID | `218` |
+| Git branch | `feature/ocp-lab-cluster-01` |
 
----
+### Sample Node Table
 
-## 3. Step 1 — Open the AAP URL
+| Role | Hostname | Serial | IP address |
+|---|---|---|---|
+| Control plane | `ocp-cp-01.lab.example.com` | `SN-A91K2P7` | `10.42.18.21` |
+| Control plane | `ocp-cp-02.lab.example.com` | `SN-B73M8Q4` | `10.42.18.22` |
+| Control plane | `ocp-cp-03.lab.example.com` | `SN-C55R1T9` | `10.42.18.23` |
+| Worker | `ocp-wk-01.lab.example.com` | `SN-D20L6X8` | `10.42.18.31` |
+| Worker | `ocp-wk-02.lab.example.com` | `SN-E84N3Z1` | `10.42.18.32` |
 
-Open your browser and go to your company's AAP web address.
+## High-Level Workflow
 
-Example:
+1. Log in to AAP.
+2. Open the approved OpenShift cluster install template.
+3. Select the correct credential objects.
+4. Enter cluster, network, and node details.
+5. Review all generated values before launch.
+6. Launch the job.
+7. Validate generated files, logs, and downstream automation targets.
+
+## Procedure
+
+### 1. Open AAP
+
+Browse to the AAP URL for your environment.
 
 ```text
 https://aap.example.internal
 ```
 
-You should see the login page.
+### 2. Authenticate
 
----
+Use your approved enterprise account or platform credential flow. Do not document live passwords in tickets, screenshots, or notes.
 
-## 4. Step 2 — Log In
+### 3. Open The Template
 
-Enter your username and password.
-
-Example:
+Navigate to:
 
 ```text
-Username: your-username
-Password: your-password
+Automation Execution -> Templates
 ```
 
-Then click **Login**.
-
----
-
-## 5. Step 3 — Open Automation Execution
-
-After logging in:
-
-- go to **Automation Execution**
-- click **Templates**
-
-This is where reusable automation jobs are stored.
-
----
-
-## 6. Step 4 — Launch the Cluster Template
-
-Find the template for OpenShift cluster creation.
-
-Example template name:
+Find the approved template, for example:
 
 ```text
 OpenShift Cluster Install
 ```
 
-Then click **Launch Template**.
+### 4. Collect Required Values Before Editing The Form
 
----
+Prepare the following inputs before launching the template:
 
-## 7. Step 5 — Gather the Information You Need
+- cluster name
+- base domain
+- machine network CIDR
+- API VIP
+- ingress VIP
+- gateway
+- VLAN ID
+- control plane and worker hostnames
+- node IP addresses
+- virtualization or hardware credentials
+- Git repository destination if artifacts are published
 
-Before filling in the form, collect the values below.
+### 5. Select Credential Objects
 
-### Required inputs
+Typical AAP credentials for this workflow may include:
 
-| Field | What it means |
-|---|---|
-| Cluster Name | Name of the new cluster |
-| Default Gateway | Main route out of the network |
-| API Virtual IP | Virtual IP for OpenShift API |
-| Ingress / Apps Virtual IP | Virtual IP for application traffic |
-| VLAN ID | Network VLAN number |
-| Machine Network CIDR | IP range used by machines |
-| Node Hostnames | Names of control plane and worker nodes |
-| Node IPs | IP addresses of the nodes |
-| Credentials | Access credentials from dropdown menus |
+- virtualization platform credentials
+- OpenShift service account credentials
+- GitHub or Git server credentials
+- out-of-band management credentials
 
----
+Select credential objects by approved name. Do not create duplicate secrets unless the workflow owner requires it.
 
-## 8. Step 6 — Select Credentials
+### 6. Enter Sanitized Or Approved Values
 
-In the template form, choose the required credentials from the dropdown menus.
-
-Examples:
-
-- vCenter credentials
-- OpenShift credentials
-- GitHub credentials
-- automation service account credentials
-
-Choose the correct credentials for your environment.
-
----
-
-## 9. Step 7 — Enter Node Information
-
-You will usually need node details for the cluster.
-
-Typical node groups:
-
-- control plane nodes
-- worker nodes
-
-### Example node data
-
-> These are sample values using random private IP addresses for documentation only.
-
-| Role | Hostname | Serial | IP Address |
-|---|---|---|---|
-| Control Plane | ocp-cp-01.lab.example | SN-A91K2P7 | 10.42.18.21 |
-| Control Plane | ocp-cp-02.lab.example | SN-B73M8Q4 | 10.42.18.22 |
-| Control Plane | ocp-cp-03.lab.example | SN-C55R1T9 | 10.42.18.23 |
-| Worker | ocp-wk-01.lab.example | SN-D20L6X8 | 10.42.18.31 |
-| Worker | ocp-wk-02.lab.example | SN-E84N3Z1 | 10.42.18.32 |
-
----
-
-## 10. Step 8 — Enter Network Information
-
-Fill in the network section carefully.
-
-### Example values
+Example network values:
 
 ```text
 Cluster Name: ocp-lab-cluster-01
+Base Domain: lab.example.com
 Default Gateway: 10.42.18.1
 API Virtual IP: 10.42.18.10
-Ingress / Apps Virtual IP: 10.42.18.11
+Ingress Virtual IP: 10.42.18.11
 VLAN ID: 218
 Machine Network CIDR: 10.42.18.0/24
 ```
 
-Make sure these values match your network design.
+### 7. Review Generated Automation Inputs
 
----
+Many AAP workflows generate inventory or value files before calling downstream playbooks or APIs. Expect outputs similar to the following.
 
-## 11. Step 9 — Review and Submit
-
-After entering the information:
-
-1. Click **Next**
-2. Review the summary page
-3. Click **Finish**
-
-This starts the automation job.
-
----
-
-## 12. What Happens After You Click Finish?
-
-AAP will typically do the following:
-
-1. validate the inputs
-2. generate cluster configuration files
-3. create or update content in a GitHub repository
-4. prepare inventory and network files
-5. run the installation workflow
-
----
-
-## 13. Better OpenShift GitHub Project Structure
-
-Below is a cleaner project structure you can use in GitHub for your OpenShift automation project.
-
-```text
-openshift-cluster-install/
-├── README.md
-├── docs/
-│   ├── guide.md
-│   ├── architecture.md
-│   ├── installation-workflow.md
-│   └── troubleshooting.md
-├── ansible/
-│   ├── inventories/
-│   │   └── ocp-lab-cluster-01/
-│   │       ├── hosts.yml
-│   │       ├── hosts_by_hostname.yml
-│   │       ├── network.yml
-│   │       └── values.yml
-│   ├── playbooks/
-│   │   ├── validate-inputs.yml
-│   │   ├── generate-config.yml
-│   │   └── install-cluster.yml
-│   ├── roles/
-│   │   ├── cluster_validation/
-│   │   ├── network_config/
-│   │   └── openshift_install/
-│   └── group_vars/
-│       └── all.yml
-├── scripts/
-│   ├── launch-template.sh
-│   ├── verify-config.sh
-│   └── post-install-check.sh
-├── examples/
-│   └── sample-cluster-inputs.md
-└── .github/
-    └── workflows/
-        └── lint-ansible.yml
-```
-
-### Why this structure is better
-
-- **README.md** explains the project
-- **docs/** keeps all documentation in one place
-- **ansible/inventories/** separates each cluster cleanly
-- **playbooks/** stores executable automation steps
-- **roles/** keeps the automation modular
-- **scripts/** stores helper commands
-- **examples/** gives beginners sample input files
-- **.github/workflows/** helps automate quality checks
-
----
-
-## 14. Important Configuration Files
-
-These are the kinds of files your automation may generate.
-
-### `hosts.yml`
-
-Defines the cluster nodes and their IP addresses.
+#### Example `hosts.yml`
 
 ```yaml
 all:
   children:
     control_plane:
       hosts:
-        ocp-cp-01.lab.example:
+        ocp-cp-01.lab.example.com:
           ansible_host: 10.42.18.21
-        ocp-cp-02.lab.example:
+        ocp-cp-02.lab.example.com:
           ansible_host: 10.42.18.22
-        ocp-cp-03.lab.example:
+        ocp-cp-03.lab.example.com:
           ansible_host: 10.42.18.23
     workers:
       hosts:
-        ocp-wk-01.lab.example:
+        ocp-wk-01.lab.example.com:
           ansible_host: 10.42.18.31
-        ocp-wk-02.lab.example:
+        ocp-wk-02.lab.example.com:
           ansible_host: 10.42.18.32
 ```
 
-### `hosts_by_hostname.yml`
-
-Groups systems by hostname lists.
-
-```yaml
-control_plane:
-  - ocp-cp-01.lab.example
-  - ocp-cp-02.lab.example
-  - ocp-cp-03.lab.example
-
-workers:
-  - ocp-wk-01.lab.example
-  - ocp-wk-02.lab.example
-```
-
-### `network.yml`
-
-Stores network settings.
+#### Example `network.yml`
 
 ```yaml
 cluster_name: ocp-lab-cluster-01
+base_domain: lab.example.com
 default_gateway: 10.42.18.1
 api_vip: 10.42.18.10
 ingress_vip: 10.42.18.11
@@ -301,111 +164,109 @@ vlan_id: 218
 machine_network_cidr: 10.42.18.0/24
 ```
 
-### `values.yml`
+### 8. Launch The Job
 
-Stores additional values used by the automation.
+Use the template review page to verify the final values, then launch the job.
 
-```yaml
-cluster_name: ocp-lab-cluster-01
-environment: lab
-domain: lab.example
-platform: vmware
-```
+### 9. Monitor Execution
 
----
-
-## 15. Example Automation Flow
+Navigate to:
 
 ```text
-User opens AAP
-   ↓
-User launches OpenShift template
-   ↓
-User fills in credentials and cluster values
-   ↓
-AAP validates inputs
-   ↓
-AAP generates inventory and network files
-   ↓
-AAP updates GitHub project content
-   ↓
-AAP runs installation workflow
-   ↓
-OpenShift cluster deployment begins
+Automation Execution -> Jobs
 ```
 
+Check for:
+
+- job status
+- failed tasks
+- rendered variable values
+- downstream repository or API update actions
+
+## Sanitized Playbook Example
+
+This repository does not include live playbooks, but the example below shows the minimum standard for documenting them safely.
+
+```yaml
 ---
+- name: Validate OpenShift cluster input values
+  hosts: localhost
+  gather_facts: false
+  vars:
+    cluster_name: ocp-lab-cluster-01
+    machine_network_cidr: 10.42.18.0/24
+    api_vip: 10.42.18.10
+    ingress_vip: 10.42.18.11
+  tasks:
+    - name: Ensure cluster name is provided
+      ansible.builtin.assert:
+        that:
+          - cluster_name | length > 0
+          - machine_network_cidr is match('^[0-9.]+/[0-9]+$')
+          - api_vip != ingress_vip
+        fail_msg: Input validation failed. Review cluster name, CIDR, and VIP assignments.
+```
 
-## 16. How to Check Job Status
+## Validation Checklist
 
-Inside AAP:
+Validate these items before marking the job successful:
 
-- go to **Automation Execution**
-- open **Jobs**
+- the AAP job completed without failed tasks
+- the cluster name and base domain match the approved request
+- generated inventory and network files match the submitted values
+- no placeholder secrets or test credentials leaked into Git
+- downstream Git commits or pull requests target the correct branch
+- workflow logs clearly show the target environment and template version
 
-There you can see:
+## Best Practices
 
-- running jobs
-- successful jobs
-- failed jobs
+- store credentials only in AAP credential objects or the approved secret backend
+- validate IPs, hostnames, and VLANs before launch
+- use branch names that map to a single cluster request
+- lint generated Ansible and YAML before production promotion
+- keep generated config separate from reusable roles and templates
+- make the job template idempotent where possible
+- document approval, change ID, and rollback owner outside the runbook if required
 
-Click on a job to read its logs.
+## Troubleshooting
 
----
+### Template Does Not Appear
 
-## 17. Troubleshooting Tips for Beginners
+- confirm your AAP organization and permissions
+- verify the template is not hidden or deprecated
+- check whether the template moved to a different execution environment or team folder
 
-If the job fails, check these first:
+### Credential Selection Fails
 
-- wrong credentials selected
-- duplicate or invalid IP addresses
-- incorrect VLAN ID
-- wrong gateway
-- wrong machine network CIDR
-- hostname spelling mistakes
-- required fields left empty
+- confirm the credential object is shared with your team
+- verify the credential type matches the expected input field
+- check whether the underlying secret or token has expired
 
-Also check the job log in AAP to see exactly where it failed.
+### Job Fails During Input Validation
 
----
+- compare the submitted CIDR, VIP, and gateway values against the approved network design
+- confirm there are no duplicate node IPs or hostnames
+- review whether the cluster name violates local naming policy
 
-## 18. Best Practices
+### Job Updates The Wrong Git Branch
 
-Always try to do the following:
+- verify the template survey or extra vars contain the expected branch name
+- review default values in the job template
+- check whether a webhook or downstream script overrides the target branch
 
-- use clear cluster names
-- document every network value
-- keep sample configs in GitHub
-- separate docs from automation files
-- review inputs before clicking **Finish**
-- use version control for every change
+### Generated Files Look Incorrect
 
----
+- compare the rendered inventory with the request form input
+- inspect variable precedence if defaults override survey answers
+- review any Jinja templating logic for missing conditionals or bad defaults
 
-## 19. Summary
+### Escalation Data To Capture
 
-In this guide, you learned how to:
+When escalating a failed run, include:
 
-- access Ansible Automation Platform
-- log in and open templates
-- launch an OpenShift cluster automation template
-- enter credentials and network values
-- organize the generated content in a cleaner GitHub project structure
-- understand the key files used for cluster installation
-
----
-
-## 20. Final Note
-
-AAP helps teams automate complex work with a repeatable process.
-
-That means:
-
-- fewer manual mistakes
-- faster setup
-- easier documentation
-- more consistent OpenShift deployments
-
-For beginners, the key is simple:
-
-**fill in the right values, review carefully, and let automation do the heavy work.**
+- AAP job ID
+- template name and version
+- time of execution
+- sanitized copy of the submitted values
+- first failing task name
+- repository or environment affected

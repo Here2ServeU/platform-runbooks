@@ -1,103 +1,85 @@
+# Storage Configuration Runbook
 
-# Configuring Storage for an OpenShift Cluster Using GitOps Automation
+## Purpose
 
-## Overview
-This guide explains how to configure external storage networking for a new OpenShift cluster using a GitOps automation workflow.
+Use this runbook to configure storage networking and validate storage readiness for a new OpenShift cluster through a GitOps-driven workflow.
 
-The process uses:
-- Git repository configuration
-- YAML configuration files
-- Bastion host execution
-- Label generation automation
-- GitOps synchronization
-- Network configuration validation
+## Scope
 
----
+This runbook covers:
+
+- updating storage network YAML inputs
+- generating required labels or values for automation
+- synchronizing the resulting configuration through GitOps
+- validating storage network outcomes
+- creating OpenShift Virtualization test VMs to confirm storage behavior
 
 ## Prerequisites
 
-### Required Access
-- Access to the automation Git repository
-- SSH access to a Bastion server
-- Access to the GitOps deployment system (such as ArgoCD)
+- access to the automation Git repository
+- SSH access to a bastion host
+- access to Argo CD or the approved GitOps dashboard
+- target cluster access with `oc`
+- approved storage VLAN IDs, IP ranges, MTU, and interface mappings
+- secret name for the storage backend or CSI credentials
 
-### Required Information
-You must know:
-- Target cluster name
-- Bare metal node hostnames
-- Storage network VLAN IDs
-- Storage network IP addresses
-- Storage credentials stored in a secret manager
+## Sanitized Example Inputs
 
----
+| Item | Sanitized example |
+|---|---|
+| Cluster name | `ocp-storage-lab-01` |
+| Branch | `cluster-init` |
+| YAML file | `new-cluster.yaml` |
+| Storage secret | `storage-backend-secret` |
+| Bastion host | `bastion.lab.example.com` |
 
-## Step 1 — Navigate to the Automation Git Repository
+## Procedure
 
-Open a browser and navigate to the Git repository managing cluster automation.
+### 1. Open The Automation Repository
 
 Example:
 
-```
+```text
 https://git.example.com/platform/cluster-automation
 ```
 
----
-
-## Step 2 — Switch to the Initialization Branch
-
-Change the repository branch to the cluster initialization branch.
+### 2. Switch To The Working Branch
 
 Example:
 
-```
+```text
 cluster-init
 ```
 
----
+### 3. Locate The Storage Configuration Area
 
-## Step 3 — Locate Storage Configuration Files
+Example path:
 
-Navigate to the storage policy templates directory.
-
-Example:
-
-```
+```text
 policies/storage/files
 ```
 
----
+### 4. Connect To The Bastion Host
 
-## Step 4 — Connect to the Bastion Server
-
-Open a terminal and connect to the Bastion host.
-
-```
-ssh username@bastion-server
+```bash
+ssh username@bastion.lab.example.com
 ```
 
----
+### 5. Move To The Storage Networking Directory
 
-## Step 5 — Navigate to the Cluster Networking Directory
-
-```
+```bash
 cd storage-cluster-networking
 ```
 
----
+### 6. Copy A Template YAML File
 
-## Step 6 — Copy an Existing Cluster YAML Template
-
-Create a new YAML configuration file from an existing template.
-
-```
+```bash
 cp example-cluster.yaml new-cluster.yaml
 ```
 
----
+### 7. Update Cluster Storage YAML
 
-## Step 7 — Update the Cluster YAML Configuration
-
-### Update Node Hostnames
+#### Hostnames
 
 ```yaml
 hostnames:
@@ -106,9 +88,7 @@ hostnames:
   - node03
 ```
 
----
-
-### Configure Storage VLANs and Storage IPs
+#### Storage VLANs And IPs
 
 ```yaml
 vlans:
@@ -117,14 +97,6 @@ vlans:
       - 10.10.10.54
       - 10.10.10.55
       - 10.10.10.56
-```
-
----
-
-### Configure Additional Storage VLAN
-
-```yaml
-vlans:
   - id: 200
     ips:
       - 10.20.20.54
@@ -132,9 +104,7 @@ vlans:
       - 10.20.20.56
 ```
 
----
-
-## Step 8 — Configure Network MTU and Interfaces
+#### MTU And Interface Definitions
 
 ```yaml
 mtu:
@@ -143,47 +113,37 @@ mtu:
 interfaces:
   - name: eno1
     type: ethernet
-
   - name: eno2
     type: ethernet
-
   - name: bond0
     type: bond
 ```
 
-Always verify interface names match the actual node interfaces.
+Always verify that interface names match the actual node inventory.
 
----
+### 8. Generate Labels Or Derived Configuration
 
-## Step 9 — Generate Node Labels Using the Automation Script
-
-Run the label generation script.
-
-```
+```bash
 sh generate-labels.sh new-cluster.yaml
 ```
 
-This generates a labels file such as:
+Expected output example:
 
-```
+```text
 new-cluster-network-labels.yaml
 ```
 
----
+### 9. Update The Values File Used By Automation
 
-## Step 10 — Edit the Automation Values File
+Open the values file and paste the generated labels or structured configuration into the required section.
 
-Open the configuration file:
+Example:
 
-```
+```text
 values.yaml
 ```
 
-Paste the generated labels into the appropriate section.
-
----
-
-## Step 11 — Configure Storage Operator Settings
+### 10. Configure Storage Operator Inputs
 
 ```yaml
 storage:
@@ -192,100 +152,162 @@ storage:
   install-mode: automatic
   operator-source: certified-operators
   operator-channel: stable
+  storage-credentials-secret: storage-backend-secret
 ```
 
----
+### 11. Sync Through GitOps
 
-## Step 12 — Configure Storage Backend Credentials
+Trigger synchronization in the GitOps system and wait until the storage-related applications or policies report healthy and synced.
 
-Retrieve storage credentials from the secret management system.
+## Validation
 
-Example:
+### Configuration Validation
 
+Confirm:
+
+- VLAN IDs match the approved network design
+- hostnames map to the correct nodes
+- MTU values are expected on the target interfaces
+- storage credential secret exists in the expected namespace
+
+Useful checks:
+
+```bash
+oc get nncp -A
+oc get nnce -A
+oc get pods -n openshift-storage
+oc get storageclass
+oc get pvc -A
 ```
-storage-backend-secret
-```
 
-Add it to the configuration:
+### Validate Storage Using OpenShift Virtualization VMs
+
+If OpenShift Virtualization is installed, create one or more test VMs to validate that storage classes, PVC provisioning, and network-backed workloads operate correctly.
+
+#### Example DataVolume
 
 ```yaml
-storage-credentials-secret: storage-backend-secret
+apiVersion: cdi.kubevirt.io/v1beta1
+kind: DataVolume
+metadata:
+  name: rhel9-test-dv
+  namespace: openshift-cnv
+spec:
+  source:
+    blank: {}
+  pvc:
+    accessModes:
+      - ReadWriteOnce
+    resources:
+      requests:
+        storage: 40Gi
+    storageClassName: ocs-external-storagecluster-ceph-rbd
 ```
 
----
+#### Example VirtualMachine
 
-## Step 13 — Sync Applications in the GitOps System
-
-Open the GitOps dashboard and trigger synchronization.
-
-Example:
-
+```yaml
+apiVersion: kubevirt.io/v1
+kind: VirtualMachine
+metadata:
+  name: rhel9-storage-validation
+  namespace: openshift-cnv
+spec:
+  running: false
+  template:
+    metadata:
+      labels:
+        app: rhel9-storage-validation
+    spec:
+      domain:
+        cpu:
+          cores: 2
+        devices:
+          disks:
+            - name: rootdisk
+              disk:
+                bus: virtio
+            - name: cloudinitdisk
+              disk:
+                bus: virtio
+        resources:
+          requests:
+            memory: 4Gi
+      networks:
+        - name: default
+          pod: {}
+      volumes:
+        - name: rootdisk
+          dataVolume:
+            name: rhel9-test-dv
+        - name: cloudinitdisk
+          cloudInitNoCloud:
+            userData: |
+              #cloud-config
+              user: cloud-user
+              password: <redacted>
+              chpasswd:
+                expire: false
 ```
-Sync All Applications
+
+#### VM Validation Steps
+
+1. Create the `DataVolume` and wait for the PVC to bind.
+2. Create the `VirtualMachine`.
+3. Start the VM and confirm it reaches the running state.
+4. Verify the PVC was provisioned by the expected storage class.
+5. If required, attach an additional test disk and verify read and write operations inside the guest.
+
+Useful commands:
+
+```bash
+oc get dv,pvc,vm,vmi -n openshift-cnv
+oc describe pvc rhel9-test-dv -n openshift-cnv
+virtctl start rhel9-storage-validation -n openshift-cnv
 ```
 
-Monitor until applications report:
+## Best Practices
 
-```
-Healthy
-Synced
-```
+- treat interface names and MTU values as host-specific facts to be verified, not assumed
+- keep storage and network changes in the same review only when they are operationally coupled
+- validate generated labels before syncing GitOps changes
+- confirm the target storage class and backend secret names from the cluster, not from stale notes
+- use test PVCs or VMs to validate provisioning before application cutover
+- keep all examples sanitized and environment-neutral in shared docs
 
----
+## Troubleshooting
 
-## Step 14 — Validate Network Configuration
+### GitOps Sync Succeeds But Storage Pods Fail
 
-Log into the cluster console and verify network policies.
+- inspect `openshift-storage` pod events and logs
+- confirm the storage operator channel and source are valid for the cluster version
+- verify the backend credential secret exists and is readable
 
-Navigation example:
+### PVCs Stay Pending
 
-```
-Networking → Network Policies
-```
+- check whether the target `StorageClass` exists
+- inspect the provisioner name and events on the PVC
+- confirm the backend has capacity and network reachability
 
-Verify:
-- Policies exist for each worker node
-- VLAN configuration matches YAML
-- MTU values are applied correctly
+### Node Network Configuration Does Not Apply
 
----
+- compare interface names in YAML with the real node interfaces
+- inspect `NodeNetworkConfigurationPolicy` and enactment status
+- verify MTU and VLAN settings are valid for the physical switch configuration
 
-## Expected Result
+### Virtual Machine Validation Fails
 
-After completion:
-- Storage networking is configured
-- Cluster nodes have storage connectivity
-- Network policies are applied automatically
-- GitOps manages future configuration updates
+- confirm OpenShift Virtualization and CDI are installed
+- verify the selected storage class supports the requested access mode
+- inspect the `DataVolume`, PVC, VM, and VMI events for provisioning failures
 
----
+### Escalation Data To Capture
 
-## Beginner Tips
+Capture:
 
-Always validate:
-
-1. Network interface names  
-2. VLAN IDs  
-3. Storage IP addresses  
-4. Cluster node hostnames  
-5. Secret names  
-
-Incorrect values here are the most common cause of deployment failures.
-
----
-
-## Simplified Workflow
-
-```
-Edit YAML
-   ↓
-Run Automation Script
-   ↓
-Generate Labels
-   ↓
-Update Git Repository
-   ↓
-Sync GitOps Platform
-   ↓
-Cluster Applies Configuration
-```
+- Git commit SHA
+- cluster name
+- storage class name
+- failing PVC or VM name
+- relevant operator pod names
+- first error from PVC, DV, or NNCP events
