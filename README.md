@@ -1,121 +1,62 @@
-# OpenShift Platform Runbooks
+# Personal OpenShift Learning Roadmap
 
-This repository contains sanitized operational runbooks and engineer-facing cheatsheets for common OpenShift platform workflows.
+This repository is a personal OpenShift learning roadmap built around practical study modules, repeatable labs, and lightweight reference material.
 
-The content is optimized for repeatable execution, safer documentation sharing, and faster onboarding. Every example uses placeholder values, private address space, or obviously non-production hostnames so the repository can be reused without leaking credentials or environment-specific details.
+The goal is to build working knowledge across GitOps, storage and networking, and automation without mixing in client-specific context.
 
-## Repository Goals
+## Roadmap Structure
 
-- standardize common OpenShift platform procedures
-- document GitOps, storage, automation, and access workflows
-- provide validated command and YAML examples
-- reduce copy-paste risk by using sanitized placeholders
-- give engineers a consistent place to start troubleshooting
+1. Module 1: GitOps Foundations and Cluster Lifecycle
+   - Guide: `openshift-gitops-cluster-platform.md`
+   - Focus: Git, Argo CD, Helm, sync flow, and reconciliation behavior
 
-## Document Index
+2. Module 2: Storage and Network Configuration
+   - Guide: `storage-configuration.md`
+   - Focus: VLAN planning, IP allocation, MTU decisions, and validation workflow
 
-- [Ansible Automation Platform runbook](./ansible-automation-platform.md)
-- [OpenShift GitOps cluster platform runbook](./openshift-gitops-cluster-platform.md)
-- [Storage configuration runbook](./storage-configuration.md)
-- [Red Hat training access runbook](./redhat-training-access-runbook.md)
-- [VS Code and GitHub setup runbook](./vscode-github-runbook.md)
-- [Git command cheatsheet for OpenShift and VS Code](./git-command-cheatsheet.md)
-- [OpenShift YAML cheatsheet](./openshift-yaml-cheatsheet.md)
+3. Module 3: Automation with Ansible
+   - Guide: `ansible-automation-platform.md`
+   - Focus: inventory modeling, input validation, repeatable automation, and troubleshooting
 
-## Documentation Standards Used In This Repo
+## Suggested Study Cadence
 
-All runbooks follow the same structure:
+- Week 1: Complete Module 1 and write your own GitOps glossary.
+- Week 2: Complete Module 2 and build one clean storage-network YAML example.
+- Week 3: Complete Module 3 and simulate one end-to-end automation workflow.
+- Week 4: Review all modules and create a short capstone checklist for yourself.
 
-1. Purpose and scope
-2. Prerequisites
-3. Sanitized examples
-4. Validation steps
-5. Best practices
-6. Troubleshooting
+## How To Use This Repository
 
-The examples in this repository use these conventions:
+- Work through the modules in order.
+- Keep personal notes for terms, failure patterns, and fixes.
+- Use a lab or sandbox environment when testing commands.
+- Repeat labs until you can explain the workflow without reading every step.
 
-- domains such as `lab.example.com` and `apps.lab.example.com`
-- private IP ranges such as `10.42.18.0/24`
-- placeholders such as `<github-token>`, `<cluster-name>`, and `<redacted>`
-- clearly fake serial numbers, hostnames, and usernames
+## Shared Example Conventions
 
-## How To Use These Runbooks
+To keep examples consistent across the repository, these docs use:
 
-1. Read the prerequisites section first.
-2. Replace placeholders with environment-approved values.
-3. Validate changes in a non-production environment before promotion.
-4. Record approvals, ticket numbers, and change references outside this repo if required by your operating model.
+- the sample network `54.25.25.0/24`
+- hostnames under `lab.example.com`
+- placeholder secrets such as `<redacted>`
+- YAML and command examples intended for learning, not production copy-paste
 
-## Playbook And Example Sanitization Guidance
+## Outcome Goals
 
-This repository does not store production automation playbooks. It stores documentation and playbook-like examples. Those examples have been sanitized using these rules:
+By the end of this roadmap, you should be able to:
 
-- no real tokens, pull secrets, or passwords
-- no production cluster names or routable IP space
-- no real employee identifiers or account names
-- no destructive commands without context or safeguards
-- no base64 blobs that appear to be live secrets
+- explain how OpenShift GitOps workflows operate
+- model cluster and network inputs clearly
+- validate configuration before apply or sync steps
+- structure Ansible inputs for repeatable automation
+- troubleshoot common OpenShift configuration failures methodically
 
-If you add new examples later, keep them sanitized to the same standard.
+## Repository Notes
 
-## Recommended Validation Tooling
-
-These tools improve quality before you operationalize any YAML or automation derived from the docs:
-
-- `yamllint`
-- `ansible-lint`
-- `helm template`
-- `oc apply --dry-run=client -f <file>`
-- `oc diff -f <file>`
-
-## Suggested Workflow For Updates
-
-1. Update the runbook or cheatsheet.
-2. Verify commands and YAML examples still make sense.
-3. Confirm placeholders are sanitized.
-4. Add a troubleshooting note if you hit a new failure mode.
-5. Keep the README index current.
-
-## Audience
-
-This repository is intended for:
-
-- OpenShift platform engineers
-- automation engineers
-- SREs operating GitOps-managed clusters
-- engineers onboarding to Red Hat and OpenShift workflows
-
-## Contribution Expectations
-
-When updating this repo:
-
-- prefer precise steps over broad advice
-- keep examples environment-neutral
-- explain why a command is run when it is not obvious
-- include validation checks after any risky step
-- add troubleshooting entries for common operator mistakes
-
-## Quick Start
-
-If you are new to this repository, read in this order:
-
-1. [README.md](./README.md)
-2. [vscode-github-runbook.md](./vscode-github-runbook.md)
-3. [git-command-cheatsheet.md](./git-command-cheatsheet.md)
-4. The workflow-specific runbook you need for your task
-
-## Maintenance Notes
-
-- Review placeholders and versions regularly.
-- Refresh OpenShift examples when cluster APIs or workflows change.
-- Keep troubleshooting sections based on real incidents, not generic filler.
-
-## Author
-
-Emmanuel Naweji is a PhD Candidate at National University and works across infrastructure, cloud, AI, and DevOps engineering. He also serves as a mentor.
+- `git-command-cheatsheet.md` provides quick Git references.
+- `openshift-yaml-cheatsheet.md` helps with YAML structure and habits.
+- the remaining markdown files can be used as supporting reference material alongside the core roadmap modules
 
 ## License
 
-This repository is licensed under the MIT License. See [LICENSE](./LICENSE).
-
+This repository is licensed under the MIT License. See `LICENSE`.
