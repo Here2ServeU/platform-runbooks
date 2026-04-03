@@ -1,130 +1,158 @@
-# OpenShift Learning Module 2: Storage and Network Configuration
+# Storage Configuration Runbook  
+## Trident + NMState Label Automation
 
-This module focuses on the storage-network side of OpenShift preparation and validation.
+This guide explains how to generate and apply storage (Trident) and network (NMState) labels for a new OpenShift cluster using GitOps workflows.
 
-## Module Goals
+---
 
-By the end of this module, you should be able to:
+# Overview
 
-- model storage VLAN and IP plans in YAML
-- map nodes to storage network requirements
-- reason about MTU and interface choices
-- validate configuration before sync or apply actions
+This process automates:
 
-## Concepts To Learn First
+- NMState network configuration (VLANs, IPs)
+- Trident storage configuration (backend, storage classes)
+- Cluster-specific label generation
+- Git-based deployment via pull requests
 
-- VLAN segmentation for storage traffic
-- node-level interface mapping
-- MTU planning and consistency
-- declarative network policy from versioned config
+---
 
-## Learning Flow
+# Prerequisites
 
-1. Gather cluster and node facts.
-2. Define storage VLAN plans.
-3. Assign storage IPs per node.
-4. Define interfaces and MTU.
-5. Generate labels or policies.
-6. Review and validate config.
-7. Apply and verify in cluster.
+- Access to GitHub repository:
+  atlas-lab-cluster-configs
+- Access to DevSpaces (or local workspace)
+- Basic Git knowledge
+- Cluster name available
+- Network details:
+  - Hostnames
+  - VLAN IDs
+  - IP addresses
+  - CIDR / prefix length
 
-## Lab 1: Create A Cluster Storage Blueprint
+---
 
-Draft a YAML file with:
+# Step 1 — Prepare Configuration Repository
 
-- node hostnames
-- storage VLAN IDs
-- storage IP mappings
-- interface names
-- MTU values
+1. Clone the repository:
+   git clone https://github.com/example/atlas-lab-cluster-configs.git
 
-Example:
+2. Create a branch named after your cluster:
+   feature/nebula-x-y-z
 
-```yaml
-hostnames:
-  - node01
-  - node02
-  - node03
+---
 
-vlans:
-  - id: 100
-    ips:
-      - 54.25.25.54
-      - 54.25.25.55
-      - 54.25.25.56
-  - id: 200
-    ips:
-      - 54.25.25.154
-      - 54.25.25.155
-      - 54.25.25.156
+# Step 2 — Generate NMState Labels
 
-mtu:
-  value: 9000
+## Navigate to scripts
 
-interfaces:
-  - name: eno1
-    type: ethernet
-  - name: eno2
-    type: ethernet
-  - name: bond0
-    type: bond
-```
+cd storage-config/storage-scripts/nmstate-label-generator
 
-## Lab 2: Validate Assumptions
+## Copy example
 
-Create a checklist and verify:
+cp example_lab.yaml nebula-x-y-z.yaml
 
-1. each node has expected interfaces
-2. each VLAN has one IP per node
-3. no duplicated IP addresses
-4. MTU value is supported end-to-end
-5. naming is consistent across files
+## Update file
 
-## Lab 3: Simulate Label Or Policy Generation
+Edit and update:
+- hostnames
+- VLAN IDs
+- IP addresses
+- prefix length
 
-Practice this workflow:
+## Generate labels
 
-```text
-Edit YAML -> Generate labels -> Insert labels into values -> Sync -> Validate status
-```
+sh generate-labels.sh nebula-x-y-z.yaml
 
-Write down what artifact each step should produce.
+## Output
 
-## Lab 4: Post-Apply Validation Plan
+nebula-x-y-z.autoshift-nmstate-labels.yaml
 
-After apply or sync, verify:
+---
 
-- expected policies exist
-- node-level configuration matches intended VLAN and MTU values
-- resources report healthy and synced status
+# Step 3 — Update values file
 
-## Troubleshooting Routine
+Open:
 
-If configuration does not apply as expected:
+values.cluster-hub.yaml
 
-1. verify interface names on actual nodes
-2. verify VLAN IDs and network reachability
-3. verify generated labels were inserted in the correct section
-4. verify sync status and failing resource details
-5. verify referenced secret names exist
+Add:
 
-## Weekly Checkpoint Questions
+clusters:
+  nebula-x-y-z:
+    labels:
 
-- Can I explain why storage traffic needs its own VLAN strategy?
-- Can I validate a network YAML without relying on guesswork?
-- Can I identify whether an issue is data, generation, or apply related?
+Paste generated labels under this section.
 
-## Stretch Practice
+---
 
-- Build two storage profiles and compare them.
-- Add a pre-merge checklist for storage network changes.
-- Document one incident-style simulation and your root cause analysis.
+# Step 4 — Add Trident Labels
 
-## Completion Criteria
+Add:
 
-You complete Module 2 when you can:
+trident: 'true'
+trident-name: trident-operator
+trident-install-plan-approval: Automatic
+trident-source: certified-operators
+trident-source-namespace: openshift-marketplace
+trident-channel: stable
+trident-creds-secret: atlas-backend-secret
+trident-secrets-namespace: cluster-install-secrets
+trident-config-1: nebula-storage-sc
+trident-config-2: nebula-backend-config
+trident-config-3: trident-csi-snapclass
+trident-vault-secret: 'false'
 
-- produce a clean storage network YAML from scratch
-- validate it with a repeatable checklist
-- explain post-apply verification steps clearly
-- troubleshoot one broken scenario end-to-end
+---
+
+# Step 5 — Storage Files
+
+cd autoshiftv2/policies/trident/files
+
+cp template.sc.yaml nebula.sc.yaml
+cp template.tbc.yaml nebula.tbc.yaml
+
+Update backend config as needed.
+
+---
+
+# Step 6 — Commit and Push
+
+git add .
+git commit -m "Add config for nebula-x-y-z"
+git push
+
+---
+
+# Step 7 — Create Pull Request
+
+Go to:
+software/autoshiftv2
+
+Click "Compare & Pull Request"
+
+Set:
+- Base: main
+- Compare: feature/nebula-x-y-z
+
+Assign reviewers:
+- John Doe
+
+Submit PR.
+
+---
+
+# Final Outcome
+
+- Network configured automatically
+- Storage provisioned automatically
+- Cluster ready for workloads
+
+---
+
+# Summary
+
+- Generate labels
+- Update values file
+- Add storage config
+- Commit and push
+- Create PR
