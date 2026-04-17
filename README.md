@@ -1,62 +1,48 @@
-# Personal OpenShift Learning Roadmap
+# Runbook Library
 
-This repository is a personal OpenShift learning roadmap built around practical study modules, repeatable labs, and lightweight reference material.
+A personal library of runbooks and reference material for platform operations work. Organized by topic so each runbook can be used standalone.
 
-The goal is to build working knowledge across GitOps, storage and networking, and automation without mixing in client-specific context.
+## Categories
 
-## Roadmap Structure
+### OpenShift — [openshift/](openshift/)
 
-1. Module 1: GitOps Foundations and Cluster Lifecycle
-   - Guide: `openshift-gitops-cluster-platform.md`
-   - Focus: Git, Argo CD, Helm, sync flow, and reconciliation behavior
+Runbooks and references for OpenShift cluster lifecycle, GitOps, storage, networking, and automation.
 
-2. Module 2: Storage and Network Configuration
-   - Guide: `storage-configuration.md`
-   - Focus: VLAN planning, IP allocation, MTU decisions, and validation workflow
+- [install.md](openshift/install.md) — cluster install runbook
+- [gitops-cluster-platform.md](openshift/gitops-cluster-platform.md) — Git, Argo CD, Helm, sync flow, reconciliation
+- [storage-configuration.md](openshift/storage-configuration.md) — VLAN planning, IP allocation, MTU, validation
+- [ansible-automation-platform.md](openshift/ansible-automation-platform.md) — inventory modeling, input validation, automation
+- [yaml-cheatsheet.md](openshift/yaml-cheatsheet.md) — OpenShift YAML structure and habits
+- [redhat-training-access.md](openshift/redhat-training-access.md) — Red Hat training environment access
 
-3. Module 3: Automation with Ansible
-   - Guide: `ansible-automation-platform.md`
-   - Focus: inventory modeling, input validation, repeatable automation, and troubleshooting
+### Certificates — [certificates/](certificates/)
 
-## Suggested Study Cadence
+Runbooks for certificate renewal, generation, and deployment.
 
-- Week 1: Complete Module 1 and write your own GitOps glossary.
-- Week 2: Complete Module 2 and build one clean storage-network YAML example.
-- Week 3: Complete Module 3 and simulate one end-to-end automation workflow.
-- Week 4: Review all modules and create a short capstone checklist for yourself.
+- [capsule-certificate-renewal.md](certificates/capsule-certificate-renewal.md) — Satellite capsule certificate renewal and generation (manual, auto-renewal disabled)
 
-## How To Use This Repository
+### Reference — [reference/](reference/)
 
-- Work through the modules in order.
-- Keep personal notes for terms, failure patterns, and fixes.
-- Use a lab or sandbox environment when testing commands.
-- Repeat labs until you can explain the workflow without reading every step.
+Supporting cheatsheets and workflow references used alongside the runbooks above.
 
-## Shared Example Conventions
+- [git-command-cheatsheet.md](reference/git-command-cheatsheet.md) — Git command quick reference
+- [vscode-github-runbook.md](reference/vscode-github-runbook.md) — VS Code and GitHub workflow
 
-To keep examples consistent across the repository, these docs use:
+## How To Use This Library
 
-- the sample network `54.25.25.0/24`
-- hostnames under `lab.example.com`
-- placeholder secrets such as `<redacted>`
-- YAML and command examples intended for learning, not production copy-paste
+- Each runbook is self-contained — start from the relevant file for your task.
+- Runbooks use placeholder values (e.g. `<servername>`, `<redacted>`) — substitute your own before running commands.
+- Shared example conventions across OpenShift docs:
+  - sample network `54.25.25.0/24`
+  - hostnames under `lab.example.com`
+  - YAML and commands are illustrative, not production copy-paste
 
-## Outcome Goals
+## Adding a New Runbook
 
-By the end of this roadmap, you should be able to:
-
-- explain how OpenShift GitOps workflows operate
-- model cluster and network inputs clearly
-- validate configuration before apply or sync steps
-- structure Ansible inputs for repeatable automation
-- troubleshoot common OpenShift configuration failures methodically
-
-## Repository Notes
-
-- `git-command-cheatsheet.md` provides quick Git references.
-- `openshift-yaml-cheatsheet.md` helps with YAML structure and habits.
-- the remaining markdown files can be used as supporting reference material alongside the core roadmap modules
+1. Pick the matching category folder (`openshift/`, `certificates/`, `reference/`), or create a new one if none fits.
+2. Add the runbook as a markdown file with a clear `Runbook:` title and numbered steps.
+3. Link it from the matching section in this README.
 
 ## License
 
-This repository is licensed under the MIT License. See `LICENSE`.
+This repository is licensed under the MIT License. See [LICENSE](LICENSE).
