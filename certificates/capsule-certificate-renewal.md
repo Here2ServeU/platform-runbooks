@@ -1,6 +1,6 @@
 # Runbook: Capsule Certificate Renewal & Generation
 
-> **⚠️ Auto-renewal is DISABLED on all capsule certificates. Manual action is required before expiration.**
+> **Auto-renewal is DISABLED on all capsule certificates. Manual action is required before expiration.**
 
 ---
 
@@ -87,7 +87,7 @@ Log into the Certificate Manager portal with your admin account.
    - Download and unzip the archive if needed
 3. Open the downloaded `.crt` file in a text editor and **copy its full contents**
 
-> ✅ A new expiration date in the Certificate Manager confirms the certificate was successfully issued.
+> A new expiration date in the Certificate Manager confirms the certificate was successfully issued.
 
 ---
 
@@ -112,7 +112,7 @@ If the check passes with no errors:
 ./capsule-cert-update.sh
 ```
 
-> ✅ No errors from `cert_check.sh` means the certificate is valid and ready to publish.
+> No errors from `cert_check.sh` means the certificate is valid and ready to publish.
 
 ---
 
@@ -136,7 +136,7 @@ mv <servername>.tar /var/www/html/pub/capsules/
 
 ### 5.2 — SELinux Issue (if tarball does not appear in web directory)
 
-> ⚠️ If the tarball doesn't show up after moving it, an SELinux context issue may be blocking access.
+> If the tarball doesn't show up after moving it, an SELinux context issue may be blocking access.
 
 Check:
 
@@ -177,7 +177,7 @@ chmod a+x <servername>-installer.txt
 ./<servername>-installer.txt
 ```
 
-> ✅ No errors from the installer means the certificate is fully deployed on the Capsule server.
+> No errors from the installer means the certificate is fully deployed on the Capsule server.
 
 ---
 
