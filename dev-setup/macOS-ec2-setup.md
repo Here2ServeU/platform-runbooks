@@ -948,6 +948,6 @@ Save this as `verify_mac_ec2.sh` and run it with `bash verify_mac_ec2.sh`.
 
 -----
 
-*Runbook by Emmanuel Naweji · T2S · 2026 · emlinkapp.com*
+*Runbook by Emmanuel Naweji · 2026 · emmanuelnaweji.com*
 
 *AWS pricing and instance availability change frequently. Verify current prices at aws.amazon.com/ec2/pricing/on-demand/ before allocating a dedicated host.*
